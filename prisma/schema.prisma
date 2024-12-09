@@ -7,49 +7,219 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Industry {
-  id        String    @id @default(uuid())
-  name      String
-  companies Company[]
-  marketId  String
-  market    Market    @relation(fields: [marketId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Simulation {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  marketId   String
+  market     Market      @relation(fields: [marketId], references: [id])
+  portfolios Portfolio[]
+
+  // Data Fields
+  startDate DateTime?
+  endDate   DateTime?
+  speed     Int?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Company {
-  id                      String      @id @default(uuid())
-  name                    String
-  industryId              String
-  industry                Industry    @relation(fields: [industryId], references: [id])
-  stockSymbolId           String
-  stockSymbol             StockSymbol @relation(fields: [stockSymbolId], references: [id])
-  marketId                String
-  market                  Market      @relation(fields: [marketId], references: [id])
-  stockPriceHigh          Float
-  stockPriceLow           Float
-  stockPriceCurrent       Float
-  stockPriceOpen          Float
-  stockPriceClose         Float
-  stockPriceChange        Float
-  stockPriceChangePercent Float
-  createdAt               DateTime    @default(now())
-  updatedAt               DateTime    @updatedAt
+model User {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Data Fields
+  email String  @unique
+  name  String?
+
+  // Relations
+  portfolios Portfolio[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model StockSymbol {
-  id        String    @id @default(uuid())
-  company   Company[]
-  symbol    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Portfolio {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  holdings     Holding[]
+  simulationId String?
+  simulation   Simulation? @relation(fields: [simulationId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Holding {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+
+  // Data Fields
+  quantity Decimal @db.Decimal(10, 2)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([portfolioId, companyId])
 }
 
 model Market {
-  id         String     @id @default(uuid())
-  name       String
-  companies  Company[]
-  industries Industry[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Relations
+  companies    Company[]
+  industries   Industry[]
+  marketEvents MarketEvent[]
+  simulations  Simulation[]
+
+  // Data Fields
+  name            String    @unique
+  startDate       DateTime?
+  endDate         DateTime?
+  simulationSpeed Int?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum MarketEventType {
+  EARNINGS
+  POLICY_CHANGE
+  OTHER
+}
+
+model MarketEvent {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  marketId String
+  market   Market @relation(fields: [marketId], references: [id])
+
+  // Data Fields
+  title     String
+  content   String
+  eventType MarketEventType
+  eventDate DateTime
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([marketId, eventDate])
+}
+
+model Industry {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  marketId  String
+  market    Market    @relation(fields: [marketId], references: [id])
+  companies Company[]
+
+  // Data Fields
+  name String @unique
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([marketId])
+}
+
+model Company {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  industryId     String
+  industry       Industry       @relation(fields: [industryId], references: [id])
+  marketId       String
+  market         Market         @relation(fields: [marketId], references: [id])
+  holdings       Holding[]
+  stockSymbol    StockSymbol?
+  currentPriceId String?        @unique
+  currentPrice   PriceSnapshot?
+
+  // Data Fields
+  name String
+
+  // Historical Snapshots
+  priceSnapshots PriceSnapshot[] @relation(name: "CompanyPriceSnapshots")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([industryId])
+  @@index([marketId])
+}
+
+model StockSymbol {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  companyId String  @unique
+  company   Company @relation(fields: [companyId], references: [id])
+
+  // Data Fields
+  symbol String @unique
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([companyId])
+}
+
+model PriceSnapshot {
+  // Primary Key
+  id String @id @default(uuid())
+
+  // Foreign Keys & Relations
+  companyId String
+  company   Company @relation(name: "CompanyPriceSnapshots", fields: [companyId], references: [id], onDelete: Cascade)
+
+  // If not needed, consider removing currentPriceCompany
+  currentPriceCompany Company? @relation(fields: [id], references: [currentPriceId])
+
+  // Price Data
+  high      Decimal @db.Decimal(10, 2)
+  low       Decimal @db.Decimal(10, 2)
+  open      Decimal @db.Decimal(10, 2)
+  close     Decimal @db.Decimal(10, 2)
+  change    Decimal @db.Decimal(10, 4)
+  changePct Decimal @db.Decimal(5, 4)
+
+  // Timestamps
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([companyId, timestamp])
 }
