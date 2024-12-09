@@ -1,4 +1,9 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "cSpell.words": ["datasource", "gameplay"]
+  "cSpell.words": [
+    "datasource",
+    "gameplay",
+    "marketbot",
+    "shadcn"
+  ]
 }
