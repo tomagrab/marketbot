@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Industry {
+  id        String    @id @default(uuid())
+  name      String
+  companies Company[]
+  marketId  String
+  market    Market    @relation(fields: [marketId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Company {
+  id                      String      @id @default(uuid())
+  name                    String
+  industryId              String
+  industry                Industry    @relation(fields: [industryId], references: [id])
+  stockSymbolId           String
+  stockSymbol             StockSymbol @relation(fields: [stockSymbolId], references: [id])
+  marketId                String
+  market                  Market      @relation(fields: [marketId], references: [id])
+  stockPriceHigh          Float
+  stockPriceLow           Float
+  stockPriceCurrent       Float
+  stockPriceOpen          Float
+  stockPriceClose         Float
+  stockPriceChange        Float
+  stockPriceChangePercent Float
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+}
+
+model StockSymbol {
+  id        String    @id @default(uuid())
+  company   Company[]
+  symbol    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Market {
+  id         String     @id @default(uuid())
+  name       String
+  companies  Company[]
+  industries Industry[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
