@@ -23,7 +23,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import DataTableTop from '@/components/ui/data-table-top';
-import DataTablePagination from '@/components/ui/data-table-pagination';
+import DataTableBottom from '@/components/ui/data-table-bottom';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -67,12 +67,14 @@ export default function DataTable<TData, TValue>({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <DataTableTop
-        placeholder={filterPlaceholder}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-        table={table}
-      />
+      <div className="flex items-center gap-2">
+        <DataTableTop
+          placeholder={filterPlaceholder}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          table={table}
+        />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -122,7 +124,7 @@ export default function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-between py-4">
-        <DataTablePagination table={table} />
+        <DataTableBottom table={table} />
       </div>
     </div>
   );

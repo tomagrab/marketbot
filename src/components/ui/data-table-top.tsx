@@ -16,14 +16,14 @@ export default function DataTableTop<TData>({
   table,
 }: DataTableTopProps<TData>) {
   return (
-    <div className="flex items-center justify-between">
+    <>
       <Input
         placeholder={placeholder}
         value={globalFilter}
         onChange={event => setGlobalFilter(event.target.value)}
-        className="max-w-sm"
+        className=""
       />
       <DataTableViewOptions table={table} />
-    </div>
+    </>
   );
 }
