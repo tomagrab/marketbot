@@ -22,9 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
+import DataTableTop from '@/components/ui/data-table-top';
 import DataTablePagination from '@/components/ui/data-table-pagination';
-import DataTableViewOptions from '@/components/ui/data-table-view-options';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -68,15 +67,12 @@ export default function DataTable<TData, TValue>({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder={filterPlaceholder}
-          value={globalFilter}
-          onChange={event => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
-        <DataTableViewOptions table={table} />
-      </div>
+      <DataTableTop
+        placeholder={filterPlaceholder}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+        table={table}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
