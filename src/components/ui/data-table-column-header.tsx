@@ -9,7 +9,7 @@ interface DataTableColumnHeaderProps<TData, TValue> {
   title: string
 }
 
-export function DataTableColumnHeader<TData, TValue>({ column, title }: DataTableColumnHeaderProps<TData, TValue>) {
+export default function DataTableColumnHeader<TData, TValue>({ column, title }: DataTableColumnHeaderProps<TData, TValue>) {
   return (
     <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
       {title}

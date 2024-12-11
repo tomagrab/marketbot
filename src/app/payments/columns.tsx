@@ -1,52 +1,85 @@
-"use client"
+'use client';
 
-import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react"
-import { MoreHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header"
+import { ColumnDef } from '@tanstack/react-table';
+import { ArrowUpDown } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import DataTableColumnHeader from '@/components/ui/data-table-column-header';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
-}
+  id: string;
+  amount: number;
+  status: 'pending' | 'processing' | 'success' | 'failed';
+  email: string;
+};
 
 export const columns: ColumnDef<Payment>[] = [
   {
-    accessorKey: "status",
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={value => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'status',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
   },
   {
-    accessorKey: "email",
+    accessorKey: 'email',
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
         Email
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
+    cell: ({ row }) => <div>{row.getValue('email')}</div>,
   },
   {
-    accessorKey: "amount",
+    accessorKey: 'amount',
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"))
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-      return <div className="text-right font-medium">{formatted}</div>
+      const amount = parseFloat(row.getValue('amount'));
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(amount);
+      return <div className="text-right font-medium">{formatted}</div>;
     },
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ row }) => {
-      const payment = row.original
+      const payment = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -56,7 +89,9 @@ export const columns: ColumnDef<Payment>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(payment.id)}
+            >
               Copy payment ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -64,7 +99,7 @@ export const columns: ColumnDef<Payment>[] = [
             <DropdownMenuItem>View payment details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];
