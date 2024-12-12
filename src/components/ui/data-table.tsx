@@ -67,14 +67,16 @@ export default function DataTable<TData, TValue>({
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <DataTableTop
-          placeholder={filterPlaceholder}
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-          table={table}
-        />
-      </div>
+      {table.getRowModel().rows.length ? (
+        <div className="flex items-center gap-2">
+          <DataTableTop
+            placeholder={filterPlaceholder}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+            table={table}
+          />
+        </div>
+      ) : null}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -123,9 +125,11 @@ export default function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between py-4">
-        <DataTableBottom table={table} />
-      </div>
+      {table.getRowModel().rows.length ? (
+        <div className="flex items-center justify-between py-4">
+          <DataTableBottom table={table} />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { columns, Payment } from './ui/columns';
+import { columns, Payment } from '@/app/payments/ui/columns';
 import DataTable from '@/components/ui/data-table';
 
 async function getData(): Promise<Payment[]> {
