@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme/theme-provider/theme-provider';
 import Header from '@/components/layout/header/header';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -36,8 +37,12 @@ export default function RootLayout({
           enableSystem={true}
           disableTransitionOnChange={true}
         >
-          <Header />
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <div className="flex h-[calc(100dvh-4rem)] flex-col">
+              <ScrollArea className="flex-1 px-4 pb-4">{children}</ScrollArea>
+            </div>
+          </div>
         </ThemeProvider>
       </body>
     </html>
