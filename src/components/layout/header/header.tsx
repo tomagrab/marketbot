@@ -3,15 +3,17 @@ import Link from 'next/link';
 
 export default function Header() {
   return (
-    <header className="flex h-16 w-full items-center justify-between px-4 backdrop-blur-lg md:px-8">
-      <div className="flex items-center space-x-4">
+    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-border/40 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:border-border md:px-8">
+      <div className="flex w-1/2 justify-start">
         <Link
           href={`/`}
           className="text-xl font-bold text-gray-800 dark:text-gray-200"
         >
           MarketBot
         </Link>
-        <nav className="hidden space-x-4 md:flex">
+      </div>
+      <div className="flex shrink-0">
+        <nav className="hidden md:flex">
           <Link
             href={`/about`}
             className="text-gray-800 hover:text-gray-700 dark:text-gray-200 dark:hover:text-gray-300"
@@ -26,7 +28,7 @@ export default function Header() {
           </Link>
         </nav>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex w-1/2 justify-end">
         <ModeToggle />
       </div>
     </header>
