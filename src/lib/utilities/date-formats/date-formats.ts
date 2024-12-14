@@ -2,19 +2,32 @@ import { format, toZonedTime } from 'date-fns-tz';
 import { formatISO, Locale, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
-// Global configuration for default formats, allowing dynamic overrides
+// Global configuration for default formats and fallback locale, allowing dynamic overrides
 const DEFAULT_FORMATS = {
   shortDate: 'MM/dd/yy',
 };
 
+let DEFAULT_LOCALE: Locale = enUS;
+
 export const setDefaultFormats = (
   newFormats: Partial<typeof DEFAULT_FORMATS>,
 ): void => {
-  Object.assign(DEFAULT_FORMATS, newFormats);
+  const validKeys = Object.keys(DEFAULT_FORMATS);
+  const filteredFormats = Object.fromEntries(
+    Object.entries(newFormats).filter(([key]) => validKeys.includes(key)),
+  );
+  Object.assign(DEFAULT_FORMATS, filteredFormats);
+};
+
+export const setDefaultLocale = (locale: Locale): void => {
+  DEFAULT_LOCALE = locale;
 };
 
 // Format date as 'YYYY-MM-DD'
-export const formatDateISO = (date: Date, locale: Locale = enUS): string => {
+export const formatDateISO = (
+  date: Date,
+  locale: Locale = DEFAULT_LOCALE,
+): string => {
   return format(date, 'yyyy-MM-dd', { locale });
 };
 
@@ -34,7 +47,8 @@ export const formatDateTimeISO = (
   timeZone: string = 'UTC',
 ): string => {
   if (!isValidTimeZone(timeZone)) {
-    throw new Error(`Invalid time zone: ${timeZone}`);
+    console.warn(`Invalid time zone: ${timeZone}. Falling back to UTC.`);
+    timeZone = 'UTC';
   }
   const zonedDate = toZonedTime(date, timeZone);
   return format(zonedDate, 'yyyy-MM-dd HH:mm:ss');
@@ -80,6 +94,11 @@ export const formatShortDate = (
 // Validate the locale parameter and provide a fallback if unsupported
 const isValidLocale = (locale: Locale): boolean => {
   try {
+    if (!locale || !locale.code || typeof locale.code !== 'string') {
+      throw new Error(
+        'Invalid locale object. Missing or incorrect `code` property.',
+      );
+    }
     Intl.DateTimeFormat(locale.code);
     return true;
   } catch {
@@ -87,12 +106,15 @@ const isValidLocale = (locale: Locale): boolean => {
   }
 };
 
-export const formatTimeOnly = (date: Date, locale: Locale = enUS): string => {
+export const formatTimeOnly = (
+  date: Date,
+  locale: Locale = DEFAULT_LOCALE,
+): string => {
   if (!isValidLocale(locale)) {
     console.warn(
-      `Invalid locale provided: ${locale}. Falling back to default locale.`,
+      `Invalid locale provided: ${JSON.stringify(locale)}. Falling back to default locale.`,
     );
-    locale = enUS;
+    locale = DEFAULT_LOCALE;
   }
   return format(date, 'h:mm a', { locale });
 };
